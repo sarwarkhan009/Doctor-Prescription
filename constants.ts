@@ -1,3 +1,13 @@
+export const TYPE_OPTIONS: string[] = [
+  'Tab',
+  'Cap',
+  'Syp',
+  'Injection',
+  'Lotion',
+  'Cream',
+  'Sachet',
+  'Other',
+];
 
 export const TIMING_OPTIONS: string[] = [
   'Morning only',

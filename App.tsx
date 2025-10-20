@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Medicine } from './types';
+import { Medicine, Investigation } from './types';
 import PrescriptionForm from './components/PrescriptionForm';
 
 // Declare jspdf and html2canvas to inform TypeScript they are loaded globally from CDN
@@ -7,15 +7,32 @@ declare const jspdf: any;
 declare const html2canvas: any;
 
 const App: React.FC = () => {
+  const [patientName, setPatientName] = useState<string>('');
+  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [age, setAge] = useState<string>('');
+  const [gender, setGender] = useState<string>('Male');
+
   const [bp, setBp] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [medicines, setMedicines] = useState<Medicine[]>([
-    { id: crypto.randomUUID(), name: '', quantity: '', timing: 'Morning only', instruction: 'After Meal' },
+    { id: crypto.randomUUID(), type: 'Tab', name: '', quantity: '', timing: 'Morning only', instruction: 'After Meal' },
+  ]);
+  const [investigations, setInvestigations] = useState<Investigation[]>([
+    { id: crypto.randomUUID(), text: '' },
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const prescriptionRef = useRef<HTMLDivElement>(null);
+
+  const handlePatientInfoChange = useCallback((field: 'patientName' | 'date' | 'age' | 'gender', value: string) => {
+    switch(field) {
+        case 'patientName': setPatientName(value); break;
+        case 'date': setDate(value); break;
+        case 'age': setAge(value); break;
+        case 'gender': setGender(value); break;
+    }
+  }, []);
 
   const handleVitalsChange = useCallback((field: 'bp' | 'weight', value: string) => {
     if (field === 'bp') setBp(value);
@@ -37,13 +54,33 @@ const App: React.FC = () => {
   const addMedicine = useCallback(() => {
     setMedicines(prevMeds => [
       ...prevMeds,
-      { id: crypto.randomUUID(), name: '', quantity: '', timing: 'Morning only', instruction: 'After Meal' },
+      { id: crypto.randomUUID(), type: 'Tab', name: '', quantity: '', timing: 'Morning only', instruction: 'After Meal' },
     ]);
   }, []);
 
   const removeMedicine = useCallback((id: string) => {
     setMedicines(prevMeds => prevMeds.filter(med => med.id !== id));
   }, []);
+
+  const handleInvestigationChange = useCallback((index: number, value: string) => {
+    setInvestigations(prev => {
+        const newInvestigations = [...prev];
+        newInvestigations[index] = { ...newInvestigations[index], text: value };
+        return newInvestigations;
+    });
+  }, []);
+
+  const addInvestigation = useCallback(() => {
+      setInvestigations(prev => [
+          ...prev,
+          { id: crypto.randomUUID(), text: '' },
+      ]);
+  }, []);
+
+  const removeInvestigation = useCallback((id: string) => {
+      setInvestigations(prev => prev.filter(inv => inv.id !== id));
+  }, []);
+
 
   const generatePdf = useCallback(() => {
     if (!prescriptionRef.current) return;
@@ -95,15 +132,24 @@ const App: React.FC = () => {
       <main>
         <PrescriptionForm
           ref={prescriptionRef}
+          patientName={patientName}
+          date={date}
+          age={age}
+          gender={gender}
+          onPatientInfoChange={handlePatientInfoChange}
           bp={bp}
           weight={weight}
           notes={notes}
           medicines={medicines}
+          investigations={investigations}
           onVitalsChange={handleVitalsChange}
           onNotesChange={handleNotesChange}
           onMedicineChange={handleMedicineChange}
           onAddMedicine={addMedicine}
           onRemoveMedicine={removeMedicine}
+          onInvestigationChange={handleInvestigationChange}
+          onAddInvestigation={addInvestigation}
+          onRemoveInvestigation={removeInvestigation}
           isPdfMode={isLoading}
         />
         
