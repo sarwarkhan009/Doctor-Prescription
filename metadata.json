@@ -1,0 +1,5 @@
+{
+  "name": "Doctor Prescription Generator",
+  "description": "A web application for doctors to easily create and generate PDF prescriptions for patients. The app allows entering patient vitals, notes, and a list of medicines with specific dosages and instructions.",
+  "requestFramePermissions": []
+}
